@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
 
@@ -15,394 +16,457 @@
 
 <body>
 
-    <div id="app">
+<div id="app">
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
 
-            <div class="brand">
-                <div class="brand-mark">C</div>
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                C
+            </div>
+
+            <div>
+                <div class="brand-name">
+                    CHIPd
+                </div>
+
+                <div class="brand-subtitle">
+                    AI Hardware Design
+                </div>
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <div class="nav-section">
+                WORKSPACE
+            </div>
+
+
+            <button
+                class="nav-item active"
+                data-page="dashboard"
+            >
+                <span class="nav-icon">⌂</span>
+                <span>Overview</span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-page="projects"
+            >
+                <span class="nav-icon">▦</span>
+                <span>Projects</span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-page="design"
+            >
+                <span class="nav-icon">◇</span>
+                <span>Designs</span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-page="verification"
+            >
+                <span class="nav-icon">✓</span>
+                <span>Verification</span>
+            </button>
+
+
+            <button
+                class="nav-item disabled"
+                data-page="optimization"
+            >
+                <span class="nav-icon">↗</span>
+                <span>Optimization</span>
+
+                <span class="coming-soon">
+                    Soon
+                </span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-page="analysis"
+            >
+                <span class="nav-icon">◈</span>
+                <span>Analysis</span>
+            </button>
+
+
+            <div class="nav-divider"></div>
+
+
+            <div class="nav-section">
+                SYSTEM
+            </div>
+
+
+            <button
+                class="nav-item"
+                data-page="settings"
+            >
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="connection-status">
+
+                <span class="status-dot"></span>
 
                 <div>
-                    <div class="brand-name">CHIPd</div>
-                    <div class="brand-subtitle">
-                        AI Hardware Design
+
+                    <div class="connection-title">
+                        Local Engine
                     </div>
+
+                    <div class="connection-subtitle">
+                        Ready
+                    </div>
+
                 </div>
+
             </div>
 
-            <nav class="navigation">
+        </div>
 
-                <div class="nav-section">
-                    WORKSPACE
-                </div>
+    </aside>
 
-                <button class="nav-item active">
-                    <span class="nav-icon">⌂</span>
-                    <span>Overview</span>
-                </button>
 
-                <button class="nav-item">
-                    <span class="nav-icon">▦</span>
-                    <span>Projects</span>
-                </button>
+    <!-- =========================================
+         MAIN APPLICATION
+    ========================================== -->
 
-                <button class="nav-item">
-                    <span class="nav-icon">◇</span>
-                    <span>Designs</span>
-                </button>
+    <main class="main">
 
-                <button class="nav-item">
-                    <span class="nav-icon">✓</span>
-                    <span>Verification</span>
-                </button>
+        <!-- TOPBAR -->
 
-                <button class="nav-item">
-                    <span class="nav-icon">↗</span>
-                    <span>Optimization</span>
-                    <span class="coming-soon">Soon</span>
-                </button>
+        <header class="topbar">
 
-                <button class="nav-item">
-                    <span class="nav-icon">◈</span>
-                    <span>Analysis</span>
-                </button>
+            <div
+                class="breadcrumb"
+                id="breadcrumb"
+            >
+                Overview
+            </div>
 
-                <div class="nav-divider"></div>
 
-                <div class="nav-section">
-                    SYSTEM
-                </div>
+            <div class="topbar-actions">
 
-                <button class="nav-item">
-                    <span class="nav-icon">⚙</span>
-                    <span>Settings</span>
-                </button>
+                <div class="backend-status">
 
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="connection-status">
                     <span class="status-dot"></span>
 
-                    <div>
-                        <div class="connection-title">
-                            Local Engine
-                        </div>
+                    Backend connected
 
-                        <div class="connection-subtitle">
-                            Ready
-                        </div>
-                    </div>
                 </div>
+
+
+                <button class="icon-button">
+                    ?
+                </button>
+
+
+                <div class="avatar">
+                    P2
+                </div>
+
             </div>
 
-        </aside>
+        </header>
 
 
-        <!-- Main application -->
-        <main class="main">
+        <!-- PAGE CONTENT -->
 
-            <!-- Topbar -->
-            <header class="topbar">
+        <section
+            class="page"
+            id="page-container"
+        >
 
-                <div class="breadcrumb">
-                    <span>Overview</span>
-                </div>
+        </section>
 
-                <div class="topbar-actions">
+    </main>
 
-                    <div class="backend-status">
-                        <span class="status-dot"></span>
-                        Backend connected
-                    </div>
-
-                    <button class="icon-button">
-                        ?
-                    </button>
-
-                    <div class="avatar">
-                        P2
-                    </div>
-
-                </div>
-
-            </header>
+</div>
 
 
-            <!-- Page -->
-            <section class="page">
+<!-- =========================================
+     JAVASCRIPT
+========================================== -->
 
-                <div class="page-header">
+<script src="api-client.js"></script>
 
-                    <div>
-                        <div class="eyebrow">
-                            HARDWARE DESIGN AUTOMATION
-                        </div>
+<script src="components/sidebar.js"></script>
+<script src="components/topbar.js"></script>
+<script src="components/project-card.js"></script>
+<script src="components/status-badge.js"></script>
+<script src="components/code-viewer.js"></script>
+<script src="components/verification-panel.js"></script>
+<script src="components/analysis-panel.js"></script>
+<script src="components/timeline.js"></script>
 
-                        <h1>
-                            Overview
-                        </h1>
-
-                        <p>
-                            Design, verify and debug digital hardware
-                            with AI-assisted engineering.
-                        </p>
-                    </div>
-
-                    <button class="primary-button">
-                        + New Project
-                    </button>
-
-                </div>
+<script src="pages/dashboard.js"></script>
+<script src="pages/projects.js"></script>
+<script src="pages/design.js"></script>
+<script src="pages/verification.js"></script>
+<script src="pages/settings.js"></script>
 
 
-                <!-- Statistics -->
-                <section class="stats-grid">
+<script>
 
-                    <div class="stat-card">
+    /*
+     * ==========================================
+     * CHIPd FRONTEND ROUTER
+     * ==========================================
+     */
 
-                        <div class="stat-label">
-                            PROJECTS
-                        </div>
+    const pages = {
 
-                        <div class="stat-value">
-                            0
-                        </div>
+        dashboard: {
+            title: "Overview",
+            render: renderDashboard
+        },
 
-                        <div class="stat-description">
-                            Hardware projects
-                        </div>
+        projects: {
+            title: "Projects",
+            render: renderProjects
+        },
 
-                    </div>
+        design: {
+            title: "Design Workspace",
+            render: renderDesign
+        },
 
+        verification: {
+            title: "Verification",
+            render: renderVerification
+        },
 
-                    <div class="stat-card">
+        settings: {
+            title: "Settings",
+            render: renderSettings
+        },
 
-                        <div class="stat-label">
-                            DESIGNS
-                        </div>
+        analysis: {
+            title: "Analysis",
+            render: () => {
 
-                        <div class="stat-value">
-                            0
-                        </div>
-
-                        <div class="stat-description">
-                            RTL designs
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            VERIFICATION RUNS
-                        </div>
-
-                        <div class="stat-value">
-                            0
-                        </div>
-
-                        <div class="stat-description">
-                            Simulation runs
-                        </div>
-
-                    </div>
-
-
-                    <div class="stat-card">
-
-                        <div class="stat-label">
-                            PASS RATE
-                        </div>
-
-                        <div class="stat-value">
-                            —
-                        </div>
-
-                        <div class="stat-description">
-                            No verification data
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                <!-- Main content -->
-                <section class="content-grid">
-
-                    <div class="panel">
-
-                        <div class="panel-header">
-
-                            <div>
-                                <h2>Recent Designs</h2>
-
-                                <p>
-                                    Your latest hardware designs
-                                </p>
+                return `
+                    <div class="page-header">
+                        <div>
+                            <div class="eyebrow">
+                                ENGINEERING INSIGHTS
                             </div>
 
-                            <button class="text-button">
-                                View all →
-                            </button>
+                            <h1>
+                                Analysis
+                            </h1>
 
+                            <p>
+                                Understand verification failures
+                                and AI-generated fixes.
+                            </p>
                         </div>
+                    </div>
 
+                    <div class="panel page-placeholder">
 
                         <div class="empty-state">
 
                             <div class="empty-icon">
-                                ◇
+                                ◈
                             </div>
 
                             <h3>
-                                No designs yet
+                                Analysis workspace
                             </h3>
 
                             <p>
-                                Create your first hardware design
-                                from a natural-language specification.
-                            </p>
-
-                            <button class="secondary-button">
-                                Create Design
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="panel">
-
-                        <div class="panel-header">
-
-                            <div>
-                                <h2>Verification</h2>
-
-                                <p>
-                                    Latest simulation activity
-                                </p>
-                            </div>
-
-                        </div>
-
-
-                        <div class="empty-state compact">
-
-                            <div class="empty-icon">
-                                ✓
-                            </div>
-
-                            <h3>
-                                No verification runs
-                            </h3>
-
-                            <p>
-                                Verification results will appear here.
+                                AI failure analysis will appear here
+                                after a verification run.
                             </p>
 
                         </div>
 
                     </div>
+                `;
+            }
+        }
 
-                </section>
-
-
-                <!-- Workflow -->
-                <section class="workflow-panel">
-
-                    <div class="panel-header">
-
-                        <div>
-                            <h2>
-                                Silica Workflow
-                            </h2>
-
-                            <p>
-                                From specification to verified RTL
-                            </p>
-                        </div>
-
-                    </div>
+    };
 
 
-                    <div class="workflow">
+    /*
+     * ==========================================
+     * PAGE NAVIGATION
+     * ==========================================
+     */
 
-                        <div class="workflow-step">
-                            <div class="workflow-number">01</div>
+    function navigate(pageName) {
 
-                            <div>
-                                <strong>Specification</strong>
-                                <span>
-                                    Describe the hardware
-                                </span>
-                            </div>
-                        </div>
+        const page = pages[pageName];
 
-
-                        <div class="workflow-arrow">
-                            →
-                        </div>
+        if (!page) {
+            return;
+        }
 
 
-                        <div class="workflow-step">
-                            <div class="workflow-number">02</div>
-
-                            <div>
-                                <strong>AI RTL</strong>
-                                <span>
-                                    Generate SystemVerilog
-                                </span>
-                            </div>
-                        </div>
+        const container =
+            document.getElementById("page-container");
 
 
-                        <div class="workflow-arrow">
-                            →
-                        </div>
+        const breadcrumb =
+            document.getElementById("breadcrumb");
 
 
-                        <div class="workflow-step">
-                            <div class="workflow-number">03</div>
+        /*
+         * Update active sidebar item
+         */
 
-                            <div>
-                                <strong>Verification</strong>
-                                <span>
-                                    Compile & simulate
-                                </span>
-                            </div>
-                        </div>
+        document
+            .querySelectorAll(".nav-item")
+            .forEach(item => {
+
+                item.classList.toggle(
+                    "active",
+                    item.dataset.page === pageName
+                );
+
+            });
 
 
-                        <div class="workflow-arrow">
-                            →
-                        </div>
+        /*
+         * Update breadcrumb
+         */
+
+        breadcrumb.textContent = page.title;
 
 
-                        <div class="workflow-step">
-                            <div class="workflow-number">04</div>
+        /*
+         * Render page
+         */
 
-                            <div>
-                                <strong>AI Debug</strong>
-                                <span>
-                                    Analyze & fix failures
-                                </span>
-                            </div>
-                        </div>
+        container.innerHTML = page.render();
 
-                    </div>
 
-                </section>
+        /*
+         * Update browser URL without reload
+         */
 
-            </section>
+        history.pushState(
+            { page: pageName },
+            "",
+            `#${pageName}`
+        );
 
-        </main>
 
-    </div>
+        /*
+         * Initialize page-specific functionality
+         */
+
+        if (
+            typeof initializePage === "function"
+        ) {
+            initializePage(pageName);
+        }
+
+    }
+
+
+    /*
+     * ==========================================
+     * SIDEBAR EVENTS
+     * ==========================================
+     */
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach(item => {
+
+            item.addEventListener(
+                "click",
+                () => {
+
+                    const page =
+                        item.dataset.page;
+
+                    if (
+                        page &&
+                        pages[page]
+                    ) {
+                        navigate(page);
+                    }
+
+                }
+            );
+
+        });
+
+
+    /*
+     * ==========================================
+     * INITIAL PAGE
+     * ==========================================
+     */
+
+    const initialPage =
+        window.location.hash
+            .replace("#", "")
+            || "dashboard";
+
+
+    navigate(
+        pages[initialPage]
+            ? initialPage
+            : "dashboard"
+    );
+
+
+    /*
+     * ==========================================
+     * BROWSER BACK / FORWARD
+     * ==========================================
+     */
+
+    window.addEventListener(
+        "popstate",
+        () => {
+
+            const page =
+                window.location.hash
+                    .replace("#", "")
+                    || "dashboard";
+
+            navigate(
+                pages[page]
+                    ? page
+                    : "dashboard"
+            );
+
+        }
+    );
+
+</script>
 
 </body>
+
 </html>
