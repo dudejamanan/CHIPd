@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CHIPd — AI Hardware Design</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div id="app">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="brand">
+                <div class="brand-mark">C</div>
+
+                <div>
+                    <div class="brand-name">CHIPd</div>
+                    <div class="brand-subtitle">
+                        AI Hardware Design
+                    </div>
+                </div>
+            </div>
+
+            <nav class="navigation">
+
+                <div class="nav-section">
+                    WORKSPACE
+                </div>
+
+                <button class="nav-item active">
+                    <span class="nav-icon">⌂</span>
+                    <span>Overview</span>
+                </button>
+
+                <button class="nav-item">
+                    <span class="nav-icon">▦</span>
+                    <span>Projects</span>
+                </button>
+
+                <button class="nav-item">
+                    <span class="nav-icon">◇</span>
+                    <span>Designs</span>
+                </button>
+
+                <button class="nav-item">
+                    <span class="nav-icon">✓</span>
+                    <span>Verification</span>
+                </button>
+
+                <button class="nav-item">
+                    <span class="nav-icon">↗</span>
+                    <span>Optimization</span>
+                    <span class="coming-soon">Soon</span>
+                </button>
+
+                <button class="nav-item">
+                    <span class="nav-icon">◈</span>
+                    <span>Analysis</span>
+                </button>
+
+                <div class="nav-divider"></div>
+
+                <div class="nav-section">
+                    SYSTEM
+                </div>
+
+                <button class="nav-item">
+                    <span class="nav-icon">⚙</span>
+                    <span>Settings</span>
+                </button>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="connection-status">
+                    <span class="status-dot"></span>
+
+                    <div>
+                        <div class="connection-title">
+                            Local Engine
+                        </div>
+
+                        <div class="connection-subtitle">
+                            Ready
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+
+        <!-- Main application -->
+        <main class="main">
+
+            <!-- Topbar -->
+            <header class="topbar">
+
+                <div class="breadcrumb">
+                    <span>Overview</span>
+                </div>
+
+                <div class="topbar-actions">
+
+                    <div class="backend-status">
+                        <span class="status-dot"></span>
+                        Backend connected
+                    </div>
+
+                    <button class="icon-button">
+                        ?
+                    </button>
+
+                    <div class="avatar">
+                        P2
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- Page -->
+            <section class="page">
+
+                <div class="page-header">
+
+                    <div>
+                        <div class="eyebrow">
+                            HARDWARE DESIGN AUTOMATION
+                        </div>
+
+                        <h1>
+                            Overview
+                        </h1>
+
+                        <p>
+                            Design, verify and debug digital hardware
+                            with AI-assisted engineering.
+                        </p>
+                    </div>
+
+                    <button class="primary-button">
+                        + New Project
+                    </button>
+
+                </div>
+
+
+                <!-- Statistics -->
+                <section class="stats-grid">
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            PROJECTS
+                        </div>
+
+                        <div class="stat-value">
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            Hardware projects
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            DESIGNS
+                        </div>
+
+                        <div class="stat-value">
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            RTL designs
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            VERIFICATION RUNS
+                        </div>
+
+                        <div class="stat-value">
+                            0
+                        </div>
+
+                        <div class="stat-description">
+                            Simulation runs
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-label">
+                            PASS RATE
+                        </div>
+
+                        <div class="stat-value">
+                            —
+                        </div>
+
+                        <div class="stat-description">
+                            No verification data
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Main content -->
+                <section class="content-grid">
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <div>
+                                <h2>Recent Designs</h2>
+
+                                <p>
+                                    Your latest hardware designs
+                                </p>
+                            </div>
+
+                            <button class="text-button">
+                                View all →
+                            </button>
+
+                        </div>
+
+
+                        <div class="empty-state">
+
+                            <div class="empty-icon">
+                                ◇
+                            </div>
+
+                            <h3>
+                                No designs yet
+                            </h3>
+
+                            <p>
+                                Create your first hardware design
+                                from a natural-language specification.
+                            </p>
+
+                            <button class="secondary-button">
+                                Create Design
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <div>
+                                <h2>Verification</h2>
+
+                                <p>
+                                    Latest simulation activity
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <div class="empty-state compact">
+
+                            <div class="empty-icon">
+                                ✓
+                            </div>
+
+                            <h3>
+                                No verification runs
+                            </h3>
+
+                            <p>
+                                Verification results will appear here.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Workflow -->
+                <section class="workflow-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h2>
+                                Silica Workflow
+                            </h2>
+
+                            <p>
+                                From specification to verified RTL
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="workflow">
+
+                        <div class="workflow-step">
+                            <div class="workflow-number">01</div>
+
+                            <div>
+                                <strong>Specification</strong>
+                                <span>
+                                    Describe the hardware
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="workflow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="workflow-step">
+                            <div class="workflow-number">02</div>
+
+                            <div>
+                                <strong>AI RTL</strong>
+                                <span>
+                                    Generate SystemVerilog
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="workflow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="workflow-step">
+                            <div class="workflow-number">03</div>
+
+                            <div>
+                                <strong>Verification</strong>
+                                <span>
+                                    Compile & simulate
+                                </span>
+                            </div>
+                        </div>
+
+
+                        <div class="workflow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="workflow-step">
+                            <div class="workflow-number">04</div>
+
+                            <div>
+                                <strong>AI Debug</strong>
+                                <span>
+                                    Analyze & fix failures
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+</html>
