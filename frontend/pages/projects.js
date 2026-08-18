@@ -1,3 +1,12 @@
+let backendProjects = [];
+
+
+/*
+ * ==========================================
+ * PROJECTS PAGE
+ * ==========================================
+ */
+
 function renderProjects() {
 
     return `
@@ -31,10 +40,6 @@ function renderProjects() {
         </div>
 
 
-        <!-- =====================================
-             PROJECT AREA
-        ====================================== -->
-
         <section class="projects-toolbar">
 
             <div class="search-box">
@@ -55,15 +60,24 @@ function renderProjects() {
 
             <div class="project-filter">
 
-                <button class="filter-button active">
+                <button
+                    class="filter-button active"
+                    onclick="setProjectFilter(this, 'all')"
+                >
                     All
                 </button>
 
-                <button class="filter-button">
+                <button
+                    class="filter-button"
+                    onclick="setProjectFilter(this, 'active')"
+                >
                     Active
                 </button>
 
-                <button class="filter-button">
+                <button
+                    class="filter-button"
+                    onclick="setProjectFilter(this, 'archived')"
+                >
                     Archived
                 </button>
 
@@ -71,10 +85,6 @@ function renderProjects() {
 
         </section>
 
-
-        <!-- =====================================
-             EMPTY STATE
-        ====================================== -->
 
         <section
             class="projects-container"
@@ -88,30 +98,17 @@ function renderProjects() {
                 </div>
 
                 <h2>
-                    No projects yet
+                    Loading projects
                 </h2>
 
                 <p>
-                    Start by creating a hardware project.
-                    You can then describe your design in natural language
-                    and let CHIPd generate the RTL.
+                    Connecting to the local hardware engine...
                 </p>
-
-                <button
-                    class="primary-button"
-                    onclick="openProjectModal()"
-                >
-                    Create your first project
-                </button>
 
             </div>
 
         </section>
 
-
-        <!-- =====================================
-             CREATE PROJECT MODAL
-        ====================================== -->
 
         <div
             class="modal-overlay hidden"
@@ -212,7 +209,8 @@ function renderProjects() {
 
                     <button
                         class="primary-button"
-                        onclick="createLocalProject()"
+                        id="create-project-button"
+                        onclick="createBackendProject()"
                     >
                         Create Project
                     </button>
@@ -224,160 +222,199 @@ function renderProjects() {
         </div>
 
     `;
-
 }
 
 
 /*
  * ==========================================
- * TEMPORARY FRONTEND PROJECT STORAGE
+ * PROJECT FILTER
  * ==========================================
- *
- * This is ONLY for frontend development.
- *
- * We will replace this with:
- *
- * POST /projects
- *
- * when Person 1's backend is ready.
  */
 
-let localProjects =
-    JSON.parse(
-        localStorage.getItem("chipd_projects") || "[]"
+let currentProjectFilter = "all";
+
+
+function setProjectFilter(button, filter) {
+
+    document
+        .querySelectorAll(".filter-button")
+        .forEach(item => {
+            item.classList.remove("active");
+        });
+
+
+    button.classList.add("active");
+
+    currentProjectFilter = filter;
+
+    const search =
+        document.getElementById("project-search");
+
+
+    renderProjectList(
+        search ? search.value : ""
     );
 
-
-/*
- * ==========================================
- * MODAL
- * ==========================================
- */
-
-function openProjectModal() {
-
-    const modal =
-        document.getElementById("project-modal");
-
-    if (!modal) {
-        return;
-    }
-
-    modal.classList.remove("hidden");
-
-    const nameInput =
-        document.getElementById("project-name");
-
-    if (nameInput) {
-        nameInput.focus();
-    }
-
-}
-
-
-function closeProjectModal() {
-
-    const modal =
-        document.getElementById("project-modal");
-
-    if (!modal) {
-        return;
-    }
-
-    modal.classList.add("hidden");
-
 }
 
 
 /*
  * ==========================================
- * CREATE PROJECT
+ * LOAD PROJECTS
  * ==========================================
  */
 
-function createLocalProject() {
+async function initializeProjectsPage() {
 
-    const name =
-        document
-            .getElementById("project-name")
-            .value
-            .trim();
-
-
-    const description =
-        document
-            .getElementById("project-description")
-            .value
-            .trim();
-
-
-    const hdl =
-        document
-            .getElementById("project-hdl")
-            .value;
-
-
-    if (!name) {
-
-        alert(
-            "Please enter a project name."
+    const container =
+        document.getElementById(
+            "projects-container"
         );
 
+
+    if (!container) {
         return;
     }
 
 
-    const project = {
+    container.innerHTML = `
 
-        id:
-            Date.now().toString(),
+        <div class="project-empty-state">
 
-        name,
+            <div class="large-empty-icon">
+                ◇
+            </div>
 
-        description:
-            description ||
-            "Hardware design project",
+            <h2>
+                Loading projects
+            </h2>
 
-        hdl,
+            <p>
+                Fetching projects from the local engine...
+            </p>
 
-        status:
-            "active",
+        </div>
 
-        designs:
-            0,
-
-        createdAt:
-            new Date().toISOString()
-
-    };
+    `;
 
 
-    localProjects.push(project);
+    try {
+
+        const response =
+            await getProjects();
 
 
-    localStorage.setItem(
-        "chipd_projects",
-        JSON.stringify(localProjects)
-    );
+        backendProjects =
+            normalizeProjectsResponse(response);
 
 
-    closeProjectModal();
+        renderProjectList();
 
+    } catch (error) {
 
-    renderProjectList();
+        container.innerHTML = `
+
+            <div class="project-empty-state">
+
+                <div class="large-empty-icon">
+                    !
+                </div>
+
+                <h2>
+                    Unable to load projects
+                </h2>
+
+                <p>
+                    ${escapeHtml(
+                        error.message ||
+                        "The backend could not be reached."
+                    )}
+                </p>
+
+                <button
+                    class="primary-button"
+                    onclick="initializeProjectsPage()"
+                >
+                    Retry
+                </button>
+
+            </div>
+
+        `;
+
+    }
 
 }
 
 
 /*
  * ==========================================
- * RENDER PROJECTS
+ * NORMALIZE BACKEND RESPONSE
  * ==========================================
  */
 
-function renderProjectList(
-    searchTerm = ""
-) {
+function normalizeProjectsResponse(response) {
+
+    const projects =
+        Array.isArray(response)
+            ? response
+            : (
+                response &&
+                Array.isArray(response.projects)
+                    ? response.projects
+                    : []
+            );
+
+
+    return projects.map(project => {
+
+        return {
+
+            id:
+                project.id ||
+                project.project_id,
+
+            name:
+                project.name ||
+                "Untitled Project",
+
+            description:
+                project.description ||
+                "Hardware design project",
+
+            hdl:
+                project.language ||
+                project.hdl ||
+                "systemverilog",
+
+            status:
+                project.status ||
+                "active",
+
+            designs:
+                project.designs ??
+                project.design_count ??
+                0,
+
+            createdAt:
+                project.created_at ||
+                project.createdAt ||
+                new Date().toISOString()
+
+        };
+
+    });
+
+}
+
+
+/*
+ * ==========================================
+ * RENDER PROJECT LIST
+ * ==========================================
+ */
+
+function renderProjectList(searchValue = "") {
 
     const container =
         document.getElementById(
@@ -391,28 +428,45 @@ function renderProjectList(
 
 
     const normalizedSearch =
-        searchTerm
+        searchValue
             .trim()
             .toLowerCase();
 
 
-    const filtered =
-        localProjects.filter(project => {
+    let filtered =
+        backendProjects.filter(project => {
 
-            return (
+            const matchesSearch =
+                !normalizedSearch ||
                 project.name
                     .toLowerCase()
-                    .includes(normalizedSearch)
-                ||
+                    .includes(normalizedSearch) ||
                 project.description
                     .toLowerCase()
-                    .includes(normalizedSearch)
+                    .includes(normalizedSearch);
+
+
+            const normalizedStatus =
+                String(
+                    project.status || "active"
+                ).toLowerCase();
+
+
+            const matchesFilter =
+                currentProjectFilter === "all" ||
+                normalizedStatus ===
+                    currentProjectFilter;
+
+
+            return (
+                matchesSearch &&
+                matchesFilter
             );
 
         });
 
 
-    if (filtered.length === 0) {
+    if (!filtered.length) {
 
         container.innerHTML = `
 
@@ -433,8 +487,8 @@ function renderProjectList(
                 <p>
                     ${
                         normalizedSearch
-                            ? "Try a different search term."
-                            : "Create your first hardware project to begin."
+                            ? "Try a different search."
+                            : "Start by creating a hardware project."
                     }
                 </p>
 
@@ -459,74 +513,92 @@ function renderProjectList(
     }
 
 
-    container.innerHTML = filtered
-        .map(project => {
+    container.innerHTML =
+        filtered
+            .map(project => {
 
-            return `
+                return `
 
-                <article
-                    class="project-card-large"
-                    onclick="openProject('${project.id}')"
-                >
+                    <article
+                        class="project-card-large"
+                        onclick="openProject('${escapeHtml(project.id)}')"
+                    >
 
-                    <div class="project-card-main">
+                        <div class="project-card-main">
 
-                        <div class="project-icon">
-                            ◇
-                        </div>
-
-
-                        <div class="project-info">
-
-                            <div class="project-title-row">
-
-                                <h2>
-                                    ${escapeHtml(project.name)}
-                                </h2>
-
-                                <span class="project-status">
-                                    ACTIVE
-                                </span>
-
+                            <div class="project-icon">
+                                ◇
                             </div>
 
 
-                            <p>
-                                ${escapeHtml(project.description)}
-                            </p>
+                            <div class="project-info">
+
+                                <div class="project-title-row">
+
+                                    <h2>
+                                        ${escapeHtml(project.name)}
+                                    </h2>
+
+                                    <span class="project-status">
+                                        ${escapeHtml(
+                                            String(
+                                                project.status ||
+                                                "ACTIVE"
+                                            ).toUpperCase()
+                                        )}
+                                    </span>
+
+                                </div>
 
 
-                            <div class="project-meta">
+                                <p>
+                                    ${escapeHtml(project.description)}
+                                </p>
 
-                                <span>
-                                    ${project.hdl}
-                                </span>
 
-                                <span>
-                                    ${project.designs} design
-                                </span>
+                                <div class="project-meta">
 
-                                <span>
-                                    Created ${formatProjectDate(project.createdAt)}
-                                </span>
+                                    <span>
+                                        ${escapeHtml(
+                                            formatLanguage(
+                                                project.hdl
+                                            )
+                                        )}
+                                    </span>
+
+                                    <span>
+                                        ${project.designs}
+                                        ${
+                                            project.designs === 1
+                                                ? "design"
+                                                : "designs"
+                                        }
+                                    </span>
+
+                                    <span>
+                                        Created
+                                        ${formatProjectDate(
+                                            project.createdAt
+                                        )}
+                                    </span>
+
+                                </div>
 
                             </div>
 
                         </div>
 
-                    </div>
 
+                        <div class="project-open">
+                            Open →
+                        </div>
 
-                    <div class="project-open">
-                        Open →
-                    </div>
+                    </article>
 
-                </article>
+                `;
 
-            `;
-
-        })
-        .join("");
+            })
+            .join("");
 
 }
 
@@ -546,6 +618,206 @@ function filterProjects(value) {
 
 /*
  * ==========================================
+ * CREATE PROJECT MODAL
+ * ==========================================
+ */
+
+function openProjectModal() {
+
+    const modal =
+        document.getElementById(
+            "project-modal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove("hidden");
+
+
+    const nameInput =
+        document.getElementById(
+            "project-name"
+        );
+
+
+    if (nameInput) {
+        nameInput.focus();
+    }
+
+}
+
+
+function closeProjectModal() {
+
+    const modal =
+        document.getElementById(
+            "project-modal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.add("hidden");
+
+}
+
+
+/*
+ * ==========================================
+ * CREATE BACKEND PROJECT
+ * ==========================================
+ */
+
+async function createBackendProject() {
+
+    const nameInput =
+        document.getElementById(
+            "project-name"
+        );
+
+
+    const descriptionInput =
+        document.getElementById(
+            "project-description"
+        );
+
+
+    const hdlInput =
+        document.getElementById(
+            "project-hdl"
+        );
+
+
+    const button =
+        document.getElementById(
+            "create-project-button"
+        );
+
+
+    const name =
+        nameInput
+            ? nameInput.value.trim()
+            : "";
+
+
+    const description =
+        descriptionInput
+            ? descriptionInput.value.trim()
+            : "";
+
+
+    const language =
+        hdlInput
+            ? hdlInput.value
+            : "systemverilog";
+
+
+    if (!name) {
+
+        alert(
+            "Please enter a project name."
+        );
+
+        return;
+    }
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+            "Creating...";
+
+    }
+
+
+    try {
+
+        const response =
+            await createProject({
+
+                name,
+
+                description:
+                    description ||
+                    "Hardware design project",
+
+                language
+
+            });
+
+
+        const project =
+            normalizeProjectsResponse([
+                response
+            ])[0];
+
+
+        if (!project || !project.id) {
+
+            throw new Error(
+                "Backend did not return a project ID."
+            );
+
+        }
+
+
+        backendProjects.unshift(
+            project
+        );
+
+
+        localStorage.setItem(
+            "chipd_current_project",
+            JSON.stringify(project)
+        );
+
+
+        localStorage.removeItem(
+            "chipd_current_design"
+        );
+
+
+        closeProjectModal();
+
+        renderProjectList();
+
+
+        navigate("design");
+
+    } catch (error) {
+
+        alert(
+            error.message ||
+            "Unable to create project."
+        );
+
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Create Project";
+
+        }
+
+    }
+
+}
+
+
+/*
+ * ==========================================
  * OPEN PROJECT
  * ==========================================
  */
@@ -553,8 +825,10 @@ function filterProjects(value) {
 function openProject(projectId) {
 
     const project =
-        localProjects.find(
-            item => item.id === projectId
+        backendProjects.find(
+            item =>
+                String(item.id) ===
+                String(projectId)
         );
 
 
@@ -563,16 +837,14 @@ function openProject(projectId) {
     }
 
 
-    /*
-     * Save selected project temporarily.
-     *
-     * Later this will become the real
-     * backend project ID.
-     */
-
     localStorage.setItem(
         "chipd_current_project",
         JSON.stringify(project)
+    );
+
+
+    localStorage.removeItem(
+        "chipd_current_design"
     );
 
 
@@ -589,38 +861,65 @@ function openProject(projectId) {
 
 function formatProjectDate(date) {
 
-    return new Date(date)
-        .toLocaleDateString(
-            undefined,
-            {
-                month: "short",
-                day: "numeric"
-            }
-        );
+    if (!date) {
+        return "—";
+    }
+
+
+    const parsed =
+        new Date(date);
+
+
+    if (
+        Number.isNaN(
+            parsed.getTime()
+        )
+    ) {
+        return "—";
+    }
+
+
+    return parsed.toLocaleDateString(
+        undefined,
+        {
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+function formatLanguage(language) {
+
+    if (
+        String(language).toLowerCase() ===
+        "systemverilog"
+    ) {
+        return "SystemVerilog";
+    }
+
+
+    if (
+        String(language).toLowerCase() ===
+        "verilog"
+    ) {
+        return "Verilog";
+    }
+
+
+    return language || "SystemVerilog";
 
 }
 
 
 function escapeHtml(value) {
 
-    return value
+    return String(value ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
-}
-
-
-/*
- * ==========================================
- * PAGE INITIALIZATION
- * ==========================================
- */
-
-function initializeProjectsPage() {
-
-    renderProjectList();
 
 }
