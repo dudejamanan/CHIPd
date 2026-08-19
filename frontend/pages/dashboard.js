@@ -51,7 +51,7 @@ function renderDashboard() {
             <div>
 
                 <div class="eyebrow">
-                    HARDWARE DESIGN AUTOMATION
+                    HARDWARE DESIGN STUDIO
                 </div>
 
                 <h1>
@@ -59,8 +59,8 @@ function renderDashboard() {
                 </h1>
 
                 <p>
-                    Design, verify and debug digital hardware
-                    with AI-assisted engineering.
+                    Design, verify, and debug digital hardware
+                    with a clear, product-focused workflow.
                 </p>
 
             </div>
@@ -307,7 +307,7 @@ function renderDashboard() {
                     <div>
 
                         <strong>
-                            AI RTL
+                            RTL
                         </strong>
 
                         <span>
@@ -359,7 +359,7 @@ function renderDashboard() {
                     <div>
 
                         <strong>
-                            AI Debug
+                            Debug
                         </strong>
 
                         <span>

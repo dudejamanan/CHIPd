@@ -115,6 +115,37 @@
 
 
         /*
+         * Restrict architectural rendering until RTL has been generated.
+         */
+
+        if (!rtlSource) {
+
+            container.innerHTML = `
+
+                <div class="code-placeholder">
+
+                    <div class="code-placeholder-icon">
+                        ◇
+                    </div>
+
+                    <strong>
+                        Architecture preview
+                    </strong>
+
+                    <span>
+                        Visual hardware architecture will appear here
+                    </span>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /*
          * Current detailed architecture.
          */
 

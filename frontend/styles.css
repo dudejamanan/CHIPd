@@ -1280,15 +1280,24 @@ button {
     display: grid;
 
     grid-template-columns:
-        minmax(240px, 0.9fr)
-        minmax(350px, 1.5fr)
-        minmax(260px, 0.9fr);
+        minmax(300px, 1.2fr)
+        minmax(450px, 1.8fr)
+        minmax(280px, 1fr);
 
-    gap: 10px;
+    gap: 12px;
 
-    min-height: 490px;
+    min-height: 560px;
+    align-items: stretch;
 }
 
+.chip-architecture-panel {
+    grid-column: 1 / -1;
+    min-height: 620px;
+}
+
+.chip-design-visualizer {
+    min-height: 560px;
+}
 
 .workspace-panel {
     min-width: 0;
@@ -1303,6 +1312,8 @@ button {
     border-radius: 6px;
 
     overflow: hidden;
+
+    min-height: 560px;
 }
 
 
@@ -1408,7 +1419,7 @@ button {
         Consolas,
         monospace;
 
-    font-size: 11px;
+    font-size: 13px;
 
     line-height: 1.7;
 }
@@ -1463,7 +1474,7 @@ button {
         Consolas,
         monospace;
 
-    font-size: 11px;
+    font-size: 13px;
 
     line-height: 1.7;
 }
@@ -1975,6 +1986,7 @@ button {
     .copilot-panel {
         grid-column: 1 / -1;
 
+        height: auto;
         min-height: 250px;
     }
 
@@ -2077,6 +2089,10 @@ button {
         grid-template-columns: 1fr;
     }
 
+    .workspace-panel {
+        min-height: 350px;
+    }
+
 
     .verification-bar {
         flex-direction: column;
@@ -2103,8 +2119,9 @@ button {
 .chip-design-visualizer {
     width: 100%;
     min-width: 0;
+    min-height: 560px;
     overflow: hidden;
-    background: #0b0f14;
+    background: linear-gradient(180deg, #0b0f14 0%, #0f1520 100%);
     color: #e7edf7;
 }
 
@@ -2114,6 +2131,7 @@ button {
     border: 1px solid #202936;
     background: #0b0f14;
     overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .chip-viewer-toolbar {
@@ -2205,8 +2223,8 @@ button {
 .chip-canvas {
     position: relative;
     width: 100%;
-    height: 390px;
-    min-height: 300px;
+    height: 500px;
+    min-height: 420px;
     overflow: hidden;
     background: #0b1118;
     border-top: 1px solid rgba(87, 106, 130, 0.15);

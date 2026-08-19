@@ -276,7 +276,7 @@ function renderDesign() {
                 </div>
 
 
-                <!-- AI COPILOT -->
+                <!-- DESIGN NOTES -->
 
                 <div class="workspace-panel copilot-panel">
 
@@ -285,18 +285,18 @@ function renderDesign() {
                         <div>
 
                             <span class="panel-kicker">
-                                03
+                                04
                             </span>
 
                             <h2>
-                                AI Copilot
+                                Design Notes
                             </h2>
 
                         </div>
 
 
                         <span class="ai-indicator">
-                            AI
+                            NOTES
                         </span>
 
                     </div>
@@ -310,16 +310,16 @@ function renderDesign() {
                         <div class="copilot-empty">
 
                             <div class="copilot-icon">
-                                ◈
+                                ◌
                             </div>
 
                             <h3>
-                                Awaiting verification
+                                Verification status pending
                             </h3>
 
                             <p>
-                                AI analysis will appear here
-                                when verification detects a problem.
+                                Review notes and debugging context
+                                will appear when the design is checked.
                             </p>
 
                         </div>
@@ -477,6 +477,14 @@ function renderDesign() {
                 );
 
 
+            if (specificationElement) {
+
+                specificationElement.oninput =
+                    resetDesignOnInput;
+
+            }
+
+
             window.renderChipDesign(
 
                 specificationElement
@@ -495,6 +503,204 @@ function renderDesign() {
 
 
     return designMarkup;
+
+}
+
+
+/*
+ * ==========================================
+ * RESET DESIGN ON SPECIFICATION INPUT
+ * ==========================================
+ */
+
+function resetDesignOnInput() {
+
+    const specificationElement =
+        document.getElementById(
+            "specification"
+        );
+
+
+    const rtlEditor =
+        document.getElementById(
+            "rtl-editor"
+        );
+
+
+    if (
+        rtlEditor &&
+        !rtlEditor.querySelector(
+            ".code-placeholder"
+        )
+    ) {
+
+        rtlEditor.innerHTML = `
+
+            <div class="code-placeholder">
+
+                <div class="code-placeholder-icon">
+                    ◇
+                </div>
+
+                <strong>
+                    RTL not generated
+                </strong>
+
+                <span>
+                    Generate RTL from the specification
+                </span>
+
+            </div>
+
+        `;
+
+
+        delete rtlEditor.dataset.rtl;
+
+
+        const fileName =
+            document.getElementById(
+                "rtl-file-name"
+            );
+
+
+        if (fileName) {
+
+            fileName.textContent =
+                "design.sv";
+
+        }
+
+    }
+
+
+    if (
+        typeof window !== "undefined" &&
+        typeof window.renderChipDesign === "function"
+    ) {
+
+        window.renderChipDesign(
+
+            specificationElement
+                ? specificationElement.value
+                : "",
+
+            "",
+
+            null
+
+        );
+
+    }
+
+
+    /*
+     * Clear the current design so the next run
+     * creates a fresh design using the corrected/new
+     * specification.
+     */
+
+    localStorage.removeItem(
+        "chipd_current_design"
+    );
+
+
+    setTimelineState({
+
+        rtl:
+            "Waiting",
+
+        testbench:
+            "Waiting",
+
+        compile:
+            "Waiting",
+
+        simulation:
+            "Waiting",
+
+        analysis:
+            "Waiting"
+
+    });
+
+
+    const testCount =
+        document.getElementById(
+            "test-count"
+        );
+
+
+    const duration =
+        document.getElementById(
+            "verification-duration"
+        );
+
+
+    if (testCount) {
+
+        testCount.textContent =
+            "—";
+
+    }
+
+
+    if (duration) {
+
+        duration.textContent =
+            "—";
+
+    }
+
+
+    setStatusText(
+        "READY"
+    );
+
+
+    setVerificationMessage(
+
+        "Ready to compile and simulate",
+
+        "ready"
+
+    );
+
+
+    const container =
+        document.getElementById(
+            "copilot-content"
+        );
+
+
+    if (container) {
+
+        container.innerHTML = `
+
+            <div
+                class="copilot-empty"
+            >
+
+                <div
+                    class="copilot-icon"
+                >
+                    ◌
+                </div>
+
+                <h3>
+                    Verification status pending
+                </h3>
+
+                <p>
+                    Review notes and debugging context
+                    will appear when the design is checked.
+                </p>
+
+            </div>
+
+        `;
+
+    }
 
 }
 
