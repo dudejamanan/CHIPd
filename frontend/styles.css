@@ -2095,4 +2095,728 @@ button {
         min-width: 700px;
     }
 
+    /* ============================================================
+   CHIPd / SILICA
+   CHIP ARCHITECTURE VISUALIZER
+   ============================================================ */
+
+.chip-design-visualizer {
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    background: #0b0f14;
+    color: #e7edf7;
+}
+
+.chip-viewer-shell {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #202936;
+    background: #0b0f14;
+    overflow: hidden;
+}
+
+.chip-viewer-toolbar {
+    min-height: 58px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    border-bottom: 1px solid #202936;
+    background: #10151c;
+}
+
+.chip-viewer-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.chip-viewer-title > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.chip-viewer-title strong {
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: .04em;
+    color: #eef3fb;
+}
+
+.chip-viewer-title span {
+    font-size: 10px;
+    color: #718096;
+}
+
+.chip-live-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74, 222, 128, .55);
+}
+
+.chip-viewer-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.chip-view-button {
+    appearance: none;
+    border: 1px solid #293444;
+    border-radius: 5px;
+    background: #121923;
+    color: #8190a5;
+    padding: 7px 10px;
+    font-family: inherit;
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease;
+}
+
+.chip-view-button:hover {
+    border-color: #46628c;
+    color: #d9e3f2;
+}
+
+.chip-view-button.active {
+    background: #17243a;
+    border-color: #4b74ad;
+    color: #8fb7ff;
+}
+
+
+/* ============================================================
+   CANVAS
+   ============================================================ */
+
+.chip-canvas {
+    position: relative;
+    width: 100%;
+    height: 390px;
+    min-height: 300px;
+    overflow: hidden;
+    background: #0b1118;
+    border-top: 1px solid rgba(87, 106, 130, 0.15);
+}
+
+.chip-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .65;
+
+    background-image:
+        linear-gradient(
+            rgba(80, 105, 135, .10) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(80, 105, 135, .10) 1px,
+            transparent 1px
+        );
+
+    background-size: 24px 24px;
+}
+
+.chip-svg {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform-origin: center center;
+}
+
+
+/* ============================================================
+   WIRES
+   ============================================================ */
+
+.chip-wire {
+    fill: none;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    transition:
+        opacity .15s ease,
+        stroke-width .15s ease,
+        filter .15s ease;
+}
+
+.chip-wire-clock {
+    stroke: #60a5fa;
+}
+
+.chip-wire-reset {
+    stroke: #f59e0b;
+}
+
+.chip-wire-data {
+    stroke: #a78bfa;
+}
+
+.chip-wire-output {
+    stroke: #4ade80;
+}
+
+.chip-wire.signal-highlight,
+.chip-wire.signal-highlight {
+    stroke-width: 7;
+    filter:
+        drop-shadow(0 0 5px currentColor)
+        drop-shadow(0 0 10px currentColor);
+}
+
+.chip-wire.signal-highlight {
+    opacity: 1;
+}
+
+
+/* ============================================================
+   SIGNAL LABELS
+   ============================================================ */
+
+.chip-signal-label {
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+    font-size: 13px;
+    font-weight: 600;
+    fill: #8ea0b8;
+    letter-spacing: .03em;
+}
+
+.chip-signal-label rect {
+    fill: rgba(17, 24, 34, 0.9);
+    stroke: #2f3d4f;
+    stroke-width: 1;
+}
+
+.chip-signal-label text {
+    fill: #8ea0b8;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+
+/* ============================================================
+   INPUT / OUTPUT PORTS
+   ============================================================ */
+
+.chip-port {
+    fill: #171f2b;
+    stroke: #607796;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+
+.chip-port-reset {
+    stroke: #b7791f;
+}
+
+.chip-port-output {
+    stroke: #3c9562;
+}
+
+.chip-port-label {
+    fill: #65758d;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.chip-port-name {
+    fill: #e6edf7;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   MAIN REGISTER
+   ============================================================ */
+
+.chip-main-register {
+    fill: #1a2432;
+    stroke: #6e91c7;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+
+.chip-register-title {
+    fill: #edf3fb;
+    font-size: 17px;
+    font-weight: 700;
+    font-family: inherit;
+}
+
+.chip-register-subtitle {
+    fill: #71839b;
+    font-size: 11px;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+}
+
+.chip-register-bits {
+    fill: #9abcf5;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.chip-register-bits rect {
+    fill: #1b2735;
+    stroke: #4d698a;
+    stroke-width: 1.5;
+}
+
+.chip-register-bits text {
+    fill: #dfeafc;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   LOGIC BLOCKS
+   ============================================================ */
+
+.chip-logic-block {
+    fill: #1b2330;
+    stroke: #7d8ca3;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+
+.chip-clock-block {
+    stroke: #477dbb;
+}
+
+.chip-block-header {
+    fill: #e8eef7;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+}
+
+.chip-block-kicker {
+    fill: #73849b;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .10em;
+}
+
+.chip-block-name {
+    fill: #dfe8f5;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.chip-block-small {
+    fill: #7e8ea4;
+    font-size: 10px;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+}
+
+
+/* ============================================================
+   MUX
+   ============================================================ */
+
+.chip-mux {
+    fill: #1d1f2b;
+    stroke: #b48d4c;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+
+.chip-mux-label {
+    fill: #cbd5e1;
+    font-size: 12px;
+    font-weight: 700;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+}
+
+
+/* ============================================================
+   NODE INTERACTION
+   ============================================================ */
+
+.chip-node {
+    cursor: pointer;
+}
+
+.chip-node:hover rect {
+    filter:
+        drop-shadow(0 0 5px rgba(96, 165, 250, .35));
+}
+
+.chip-node.selected rect {
+    stroke: #8fb7ff;
+    stroke-width: 3;
+}
+
+
+/* ============================================================
+   CANVAS CONTROLS
+   ============================================================ */
+
+.chip-canvas-controls {
+    position: absolute;
+    z-index: 5;
+    top: 12px;
+    right: 12px;
+
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    padding: 4px;
+
+    border: 1px solid #273344;
+    border-radius: 6px;
+
+    background: rgba(12, 17, 24, .92);
+    backdrop-filter: blur(8px);
+}
+
+.chip-canvas-controls button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: #8b9ab0;
+    min-width: 26px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.chip-canvas-controls button:hover {
+    background: #182231;
+    color: #e5edf8;
+}
+
+
+/* ============================================================
+   FOOTER / LEGEND
+   ============================================================ */
+
+.chip-viewer-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-top: 1px solid #202936;
+    background: #10151c;
+}
+
+.chip-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.chip-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: #738198;
+}
+
+.chip-legend-line {
+    display: inline-block;
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+}
+
+.chip-legend-line.clock {
+    background: #60a5fa;
+}
+
+.chip-legend-line.reset {
+    background: #f59e0b;
+}
+
+.chip-legend-line.data {
+    background: #a78bfa;
+}
+
+.chip-legend-line.output {
+    background: #4ade80;
+}
+
+.chip-viewer-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.chip-viewer-meta span {
+    color: #5f6e82;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size: 9px;
+}
+
+
+/* ============================================================
+   NODE INSPECTOR
+   ============================================================ */
+
+.chip-node-inspector {
+    min-height: 74px;
+    padding: 12px 14px;
+    border-top: 1px solid #202936;
+    background: #0d131b;
+}
+
+.chip-inspector-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.chip-inspector-kicker {
+    color: #6583ad;
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.chip-inspector-content strong {
+    color: #e7edf7;
+    font-size: 12px;
+}
+
+.chip-inspector-content p {
+    margin: 0;
+    color: #77869a;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.chip-inspector-content code {
+    color: #8ba9d3;
+    font-size: 9px;
+}
+
+
+/* ============================================================
+   BEHAVIOR CALLOUT
+   ============================================================ */
+
+.chip-behavior-callout {
+    margin: 0;
+    padding: 10px 14px;
+    border-top: 1px solid #202936;
+    background: #0d131b;
+}
+
+.chip-behavior-callout rect {
+    fill: rgba(17, 23, 31, 0.96);
+    stroke: #364d68;
+    stroke-width: 1.2;
+}
+
+.chip-callout-title {
+    color: #dfe8f5;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.chip-callout-text {
+    margin-top: 4px;
+    color: #75849a;
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.chip-callout-arrow {
+    color: #6e8fbd;
+}
+
+
+/* ============================================================
+   UNSUPPORTED STATE
+   ============================================================ */
+
+.chip-unsupported {
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 30px;
+    background: #0b0f14;
+}
+
+.chip-unsupported-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #2c3a4e;
+    border-radius: 7px;
+    color: #7097d1;
+}
+
+.chip-unsupported span {
+    color: #60718a;
+    font-size: 9px;
+    letter-spacing: .08em;
+}
+
+.chip-unsupported h3 {
+    margin: 5px 0;
+    color: #e5edf8;
+    font-size: 14px;
+}
+
+.chip-unsupported p {
+    max-width: 480px;
+    margin: 0;
+    color: #718096;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.chip-unsupported-status {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 8px;
+    border: 1px solid #293649;
+    border-radius: 4px;
+    color: #7e94b2;
+    font-size: 9px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .chip-viewer-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .chip-viewer-actions {
+        width: 100%;
+    }
+
+    .chip-view-button {
+        flex: 1;
+    }
+
+    .chip-canvas {
+        height: 330px;
+    }
+
+    .chip-viewer-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .chip-viewer-meta {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+}
+
 }

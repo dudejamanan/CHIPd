@@ -11,7 +11,10 @@
 
     <title>CHIPd — AI Hardware Design</title>
 
-    <link rel="stylesheet" href="styles.css">
+    <link
+        rel="stylesheet"
+        href="styles.css"
+    >
 </head>
 
 <body>
@@ -31,6 +34,7 @@
             </div>
 
             <div>
+
                 <div class="brand-name">
                     CHIPd
                 </div>
@@ -38,6 +42,7 @@
                 <div class="brand-subtitle">
                     AI Hardware Design
                 </div>
+
             </div>
 
         </div>
@@ -246,33 +251,62 @@
             render: renderDashboard
         },
 
+
         projects: {
             title: "Projects",
             render: renderProjects
         },
+
+
+        /*
+         * EXISTING CHIP DESIGN / DESIGN WORKSPACE
+         *
+         * This remains connected to the existing
+         * renderDesign() implementation.
+         */
 
         design: {
             title: "Design Workspace",
             render: renderDesign
         },
 
+
+        /*
+         * EXISTING VERIFICATION PAGE
+         *
+         * Do not modify its implementation here.
+         */
+
         verification: {
             title: "Verification",
             render: renderVerification
         },
+
 
         settings: {
             title: "Settings",
             render: renderSettings
         },
 
+
+        /*
+         * ==========================================
+         * ANALYSIS / AI COPILOT WORKSPACE
+         * ==========================================
+         */
+
         analysis: {
+
             title: "Analysis",
+
             render: () => {
 
                 return `
+
                     <div class="page-header">
+
                         <div>
+
                             <div class="eyebrow">
                                 ENGINEERING INSIGHTS
                             </div>
@@ -285,8 +319,1160 @@
                                 Understand verification failures
                                 and AI-generated fixes.
                             </p>
+
                         </div>
+
                     </div>
+
+
+                    <div id="analysis-page-content">
+
+                        <div class="panel page-placeholder">
+
+                            <div class="empty-state">
+
+                                <div class="empty-icon">
+                                    ◈
+                                </div>
+
+                                <h3>
+                                    Loading analysis
+                                </h3>
+
+                                <p>
+                                    Reading the latest design
+                                    verification and AI analysis.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+            }
+
+        }
+
+    };
+
+
+    /*
+     * ==========================================
+     * ANALYSIS HELPERS
+     * ==========================================
+     */
+
+
+    function escapeAnalysisText(value) {
+
+        return String(
+            value === null ||
+            value === undefined
+                ? ""
+                : value
+        )
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    function getAnalysisCurrentDesign() {
+
+        const value =
+            localStorage.getItem(
+                "chipd_current_design"
+            );
+
+        if (!value) {
+            return null;
+        }
+
+        try {
+
+            return JSON.parse(value);
+
+        } catch (error) {
+
+            console.error(
+                "Unable to read current design:",
+                error
+            );
+
+            return null;
+        }
+
+    }
+
+
+    function getAnalysisMockState() {
+
+        if (
+            typeof getSilicaMockState !==
+            "function"
+        ) {
+
+            return null;
+        }
+
+        try {
+
+            return getSilicaMockState();
+
+        } catch (error) {
+
+            console.error(
+                "Unable to read CHIPd mock state:",
+                error
+            );
+
+            return null;
+        }
+
+    }
+
+
+    function getAnalysisDesignId(design) {
+
+        if (!design) {
+            return null;
+        }
+
+        return (
+            design.id ||
+            design.design_id ||
+            null
+        );
+
+    }
+
+
+    function isAnalysisFailure(verification) {
+
+        if (!verification) {
+            return false;
+        }
+
+        return (
+            verification.status === "failed" ||
+            verification.status === "FAIL" ||
+            verification.status === "fail"
+        );
+
+    }
+
+
+    function formatAnalysisConfidence(
+        confidence
+    ) {
+
+        if (
+            confidence === null ||
+            confidence === undefined ||
+            confidence === ""
+        ) {
+
+            return "—";
+        }
+
+
+        const numeric =
+            Number(confidence);
+
+
+        if (
+            Number.isNaN(numeric)
+        ) {
+
+            return String(
+                confidence
+            );
+
+        }
+
+
+        if (numeric <= 1) {
+
+            return `${Math.round(
+                numeric * 100
+            )}%`;
+
+        }
+
+
+        return `${Math.round(
+            numeric
+        )}%`;
+
+    }
+
+
+    function formatAnalysisDuration(
+        verification
+    ) {
+
+        if (
+            !verification ||
+            verification.duration_ms ===
+                undefined ||
+            verification.duration_ms ===
+                null
+        ) {
+
+            return "—";
+        }
+
+        return `${verification.duration_ms} ms`;
+
+    }
+
+
+    function getAnalysisTestSummary(
+        verification
+    ) {
+
+        if (
+            !verification ||
+            !verification.tests
+        ) {
+
+            return "—";
+        }
+
+
+        const passed =
+            Number(
+                verification.tests.passed || 0
+            );
+
+        const total =
+            Number(
+                verification.tests.total || 0
+            );
+
+
+        if (!total) {
+            return "—";
+        }
+
+
+        return `${passed}/${total}`;
+
+    }
+
+
+    function getAnalysisStatusText(
+        verification
+    ) {
+
+        if (!verification) {
+            return "NO VERIFICATION";
+        }
+
+
+        if (
+            isAnalysisFailure(
+                verification
+            )
+        ) {
+
+            return "FAILED";
+        }
+
+
+        return "PASSED";
+
+    }
+
+
+    function renderAnalysisNoDesign() {
+
+        const container =
+            document.getElementById(
+                "analysis-page-content"
+            );
+
+        if (!container) {
+            return;
+        }
+
+
+        container.innerHTML = `
+
+            <div class="panel page-placeholder">
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ◈
+                    </div>
+
+                    <h3>
+                        No design selected
+                    </h3>
+
+                    <p>
+                        Open the Design Workspace and
+                        run RTL generation and verification
+                        before viewing AI analysis.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        onclick="navigate('design')"
+                    >
+                        Open Design Workspace
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    function renderAnalysisNoVerification() {
+
+        const container =
+            document.getElementById(
+                "analysis-page-content"
+            );
+
+        if (!container) {
+            return;
+        }
+
+
+        container.innerHTML = `
+
+            <div class="panel page-placeholder">
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ◈
+                    </div>
+
+                    <h3>
+                        No verification result
+                    </h3>
+
+                    <p>
+                        Run the design through RTL generation
+                        and verification first. AI failure
+                        analysis will appear after a failed run.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        onclick="navigate('design')"
+                    >
+                        Open Design Workspace
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    function renderAnalysisNoFailure(
+        verification
+    ) {
+
+        const container =
+            document.getElementById(
+                "analysis-page-content"
+            );
+
+        if (!container) {
+            return;
+        }
+
+
+        const testSummary =
+            getAnalysisTestSummary(
+                verification
+            );
+
+        const duration =
+            formatAnalysisDuration(
+                verification
+            );
+
+
+        container.innerHTML = `
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Verification result
+                        </h2>
+
+                        <p>
+                            The latest verification completed successfully.
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        class="ai-indicator"
+                    >
+                        NO FAILURE
+                    </span>
+
+                </div>
+
+
+                <div
+                    style="
+                        padding:24px;
+                    "
+                >
+
+                    <div
+                        class="stats-grid"
+                        style="
+                            margin-bottom:0;
+                        "
+                    >
+
+                        <div class="stat-card">
+
+                            <div class="stat-label">
+                                STATUS
+                            </div>
+
+                            <div
+                                class="stat-value"
+                                style="
+                                    color:var(--success);
+                                "
+                            >
+                                PASSED
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-label">
+                                TESTS
+                            </div>
+
+                            <div class="stat-value">
+                                ${escapeAnalysisText(
+                                    testSummary
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-label">
+                                DURATION
+                            </div>
+
+                            <div class="stat-value">
+                                ${escapeAnalysisText(
+                                    duration
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="panel"
+                style="
+                    margin-top:16px;
+                "
+            >
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ✓
+                    </div>
+
+                    <h3>
+                        No failure to analyze
+                    </h3>
+
+                    <p>
+                        AI failure analysis is generated
+                        when verification fails.
+                    </p>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    function renderAnalysisFailure(
+        design,
+        verification,
+        analysis
+    ) {
+
+        const container =
+            document.getElementById(
+                "analysis-page-content"
+            );
+
+        if (!container) {
+            return;
+        }
+
+
+        const designName =
+            design.name ||
+            design.module_name ||
+            "Current Design";
+
+
+        const testSummary =
+            getAnalysisTestSummary(
+                verification
+            );
+
+
+        const duration =
+            formatAnalysisDuration(
+                verification
+            );
+
+
+        const severity =
+            analysis?.severity ||
+            "unknown";
+
+
+        const confidence =
+            formatAnalysisConfidence(
+                analysis?.confidence
+            );
+
+
+        const severityLabel =
+            String(
+                severity
+            ).toUpperCase();
+
+
+        container.innerHTML = `
+
+            <!-- VERIFICATION SUMMARY -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Failed Verification
+                        </h2>
+
+                        <p>
+                            AI analysis for ${escapeAnalysisText(
+                                designName
+                            )}
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        style="
+                            display:inline-flex;
+                            align-items:center;
+                            padding:5px 8px;
+                            border-radius:4px;
+                            border:1px solid rgba(226,109,120,0.25);
+                            background:rgba(226,109,120,0.08);
+                            color:var(--danger);
+                            font-size:9px;
+                            font-weight:700;
+                            letter-spacing:0.7px;
+                        "
+                    >
+                        FAILED
+                    </span>
+
+                </div>
+
+
+                <div
+                    style="
+                        padding:18px;
+                    "
+                >
+
+                    <div
+                        class="stats-grid"
+                        style="
+                            margin-bottom:0;
+                        "
+                    >
+
+                        <div class="stat-card">
+
+                            <div class="stat-label">
+                                VERIFICATION
+                            </div>
+
+                            <div
+                                class="stat-value"
+                                style="
+                                    color:var(--danger);
+                                "
+                            >
+                                FAILED
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-label">
+                                TESTS
+                            </div>
+
+                            <div class="stat-value">
+                                ${escapeAnalysisText(
+                                    testSummary
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-label">
+                                DURATION
+                            </div>
+
+                            <div class="stat-value">
+                                ${escapeAnalysisText(
+                                    duration
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat-card">
+
+                            <div class="stat-label">
+                                SEVERITY
+                            </div>
+
+                            <div
+                                class="stat-value"
+                                style="
+                                    color:var(--danger);
+                                    font-size:18px;
+                                "
+                            >
+                                ${escapeAnalysisText(
+                                    severityLabel
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- AI ANALYSIS -->
+
+            <div
+                class="content-grid"
+                style="
+                    margin-top:16px;
+                    margin-bottom:0;
+                "
+            >
+
+                <!-- ROOT CAUSE -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                Root Cause
+                            </h2>
+
+                            <p>
+                                What the AI identified as the
+                                likely source of the failure.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        style="
+                            padding:20px;
+                            line-height:1.7;
+                            color:var(--text-secondary);
+                            font-size:12px;
+                        "
+                    >
+
+                        ${escapeAnalysisText(
+                            analysis?.root_cause ||
+                            "No root cause returned."
+                        )}
+
+                    </div>
+
+                </div>
+
+
+                <!-- SEVERITY + CONFIDENCE -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                AI Assessment
+                            </h2>
+
+                            <p>
+                                Severity and model confidence.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        style="
+                            padding:20px;
+                        "
+                    >
+
+                        <div
+                            style="
+                                margin-bottom:18px;
+                            "
+                        >
+
+                            <div class="stat-label">
+                                SEVERITY
+                            </div>
+
+                            <div
+                                style="
+                                    margin-top:7px;
+                                    font-size:20px;
+                                    font-weight:650;
+                                    color:var(--danger);
+                                "
+                            >
+                                ${escapeAnalysisText(
+                                    severityLabel
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div>
+
+                            <div class="stat-label">
+                                CONFIDENCE
+                            </div>
+
+                            <div
+                                style="
+                                    margin-top:7px;
+                                    font-size:20px;
+                                    font-weight:650;
+                                    color:var(--accent);
+                                "
+                            >
+                                ${escapeAnalysisText(
+                                    confidence
+                                )}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- EXPLANATION -->
+
+            <div
+                class="panel"
+                style="
+                    margin-top:16px;
+                "
+            >
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Explanation
+                        </h2>
+
+                        <p>
+                            AI-generated reasoning behind the
+                            verification failure.
+                        </p>
+
+                    </div>
+
+                    <span class="ai-indicator">
+                        AI ANALYSIS
+                    </span>
+
+                </div>
+
+
+                <div
+                    style="
+                        padding:20px;
+                        color:var(--text-secondary);
+                        font-size:12px;
+                        line-height:1.8;
+                    "
+                >
+
+                    ${escapeAnalysisText(
+                        analysis?.explanation ||
+                        "No explanation returned."
+                    )}
+
+                </div>
+
+            </div>
+
+
+            <!-- SUGGESTED FIX -->
+
+            <div
+                class="panel"
+                style="
+                    margin-top:16px;
+                "
+            >
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Suggested Fix
+                        </h2>
+
+                        <p>
+                            Recommended correction returned by
+                            the current AI analysis.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    style="
+                        padding:20px;
+                    "
+                >
+
+                    <div
+                        style="
+                            padding:15px;
+                            border:1px solid var(--border);
+                            border-radius:5px;
+                            background:#0c0f13;
+                            color:var(--text-secondary);
+                            font-family:
+                                'JetBrains Mono',
+                                'Cascadia Code',
+                                Consolas,
+                                monospace;
+                            font-size:11px;
+                            line-height:1.7;
+                        "
+                    >
+
+                        ${escapeAnalysisText(
+                            analysis?.suggested_fix ||
+                            "No suggested fix returned."
+                        )}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- NEXT ACTION -->
+
+            <div
+                class="panel"
+                style="
+                    margin-top:16px;
+                "
+            >
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Next Action
+                        </h2>
+
+                        <p>
+                            Continue the correction and
+                            re-verification workflow.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    style="
+                        padding:20px;
+                        display:flex;
+                        align-items:center;
+                        justify-content:space-between;
+                        gap:20px;
+                    "
+                >
+
+                    <div
+                        style="
+                            color:var(--text-secondary);
+                            font-size:11px;
+                            line-height:1.6;
+                        "
+                    >
+
+                        The existing AI Fix workflow is
+                        available from the Design Workspace.
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="primary-button"
+                        onclick="navigate('design')"
+                    >
+                        Open Design Workspace
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /*
+     * ==========================================
+     * LOAD ANALYSIS PAGE
+     * ==========================================
+     */
+
+    async function loadAnalysisPage() {
+
+        const container =
+            document.getElementById(
+                "analysis-page-content"
+            );
+
+        if (!container) {
+            return;
+        }
+
+
+        const design =
+            getAnalysisCurrentDesign();
+
+
+        if (!design) {
+
+            renderAnalysisNoDesign();
+
+            return;
+        }
+
+
+        const designId =
+            getAnalysisDesignId(
+                design
+            );
+
+
+        if (!designId) {
+
+            renderAnalysisNoDesign();
+
+            return;
+        }
+
+
+        const state =
+            getAnalysisMockState();
+
+
+        if (!state) {
+
+            container.innerHTML = `
+
+                <div class="panel page-placeholder">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            !
+                        </div>
+
+                        <h3>
+                            Analysis unavailable
+                        </h3>
+
+                        <p>
+                            The current mock state could not
+                            be loaded.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        const verification =
+            state.verifications &&
+            state.verifications[
+                designId
+            ]
+                ? state.verifications[
+                    designId
+                ]
+                : null;
+
+
+        if (!verification) {
+
+            renderAnalysisNoVerification();
+
+            return;
+        }
+
+
+        if (
+            !isAnalysisFailure(
+                verification
+            )
+        ) {
+
+            renderAnalysisNoFailure(
+                verification
+            );
+
+            return;
+        }
+
+
+        let analysis =
+            state.analyses &&
+            state.analyses[
+                designId
+            ]
+                ? state.analyses[
+                    designId
+                ]
+                : null;
+
+
+        /*
+         * If a failed verification exists but
+         * analysis has not yet been stored,
+         * ask the existing API client for it.
+         */
+
+        if (
+            !analysis &&
+            typeof analyzeDesign ===
+                "function"
+        ) {
+
+            try {
+
+                container.innerHTML = `
 
                     <div class="panel page-placeholder">
 
@@ -297,22 +1483,151 @@
                             </div>
 
                             <h3>
-                                Analysis workspace
+                                Analyzing verification failure
                             </h3>
 
                             <p>
-                                AI failure analysis will appear here
-                                after a verification run.
+                                AI Copilot is analyzing the
+                                failed verification result.
                             </p>
 
                         </div>
 
                     </div>
+
                 `;
+
+
+                analysis =
+                    await analyzeDesign(
+                        designId
+                    );
+
+            } catch (error) {
+
+                console.error(
+                    "Analysis request failed:",
+                    error
+                );
+
+
+                container.innerHTML = `
+
+                    <div class="panel page-placeholder">
+
+                        <div class="empty-state">
+
+                            <div class="empty-icon">
+                                !
+                            </div>
+
+                            <h3>
+                                Analysis unavailable
+                            </h3>
+
+                            <p>
+                                ${
+                                    escapeAnalysisText(
+                                        error?.message ||
+                                        "The AI analysis request failed."
+                                    )
+                                }
+                            </p>
+
+                            <button
+                                type="button"
+                                class="secondary-button"
+                                onclick="loadAnalysisPage()"
+                            >
+                                Retry Analysis
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+                return;
             }
+
         }
 
-    };
+
+        if (!analysis) {
+
+            container.innerHTML = `
+
+                <div class="panel page-placeholder">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            ◈
+                        </div>
+
+                        <h3>
+                            Analysis not available yet
+                        </h3>
+
+                        <p>
+                            A failed verification exists,
+                            but no AI analysis result is
+                            currently stored.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="secondary-button"
+                            onclick="loadAnalysisPage()"
+                        >
+                            Retry Analysis
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+            return;
+        }
+
+
+        renderAnalysisFailure(
+            design,
+            verification,
+            analysis
+        );
+
+    }
+
+
+    /*
+     * ==========================================
+     * PAGE INITIALIZATION
+     * ==========================================
+     *
+     * The existing router already calls
+     * initializePage(pageName) when available.
+     *
+     * We only use it for Analysis.
+     */
+
+    function initializePage(
+        pageName
+    ) {
+
+        if (
+            pageName ===
+            "analysis"
+        ) {
+
+            loadAnalysisPage();
+
+        }
+
+    }
 
 
     /*
@@ -321,9 +1636,15 @@
      * ==========================================
      */
 
-    function navigate(pageName) {
+    function navigate(
+        pageName
+    ) {
 
-        const page = pages[pageName];
+        const page =
+            pages[
+                pageName
+            ];
+
 
         if (!page) {
             return;
@@ -331,11 +1652,15 @@
 
 
         const container =
-            document.getElementById("page-container");
+            document.getElementById(
+                "page-container"
+            );
 
 
         const breadcrumb =
-            document.getElementById("breadcrumb");
+            document.getElementById(
+                "breadcrumb"
+            );
 
 
         /*
@@ -343,29 +1668,36 @@
          */
 
         document
-            .querySelectorAll(".nav-item")
-            .forEach(item => {
+            .querySelectorAll(
+                ".nav-item"
+            )
+            .forEach(
+                item => {
 
-                item.classList.toggle(
-                    "active",
-                    item.dataset.page === pageName
-                );
+                    item.classList.toggle(
+                        "active",
+                        item.dataset.page ===
+                            pageName
+                    );
 
-            });
+                }
+            );
 
 
         /*
          * Update breadcrumb
          */
 
-        breadcrumb.textContent = page.title;
+        breadcrumb.textContent =
+            page.title;
 
 
         /*
          * Render page
          */
 
-        container.innerHTML = page.render();
+        container.innerHTML =
+            page.render();
 
 
         /*
@@ -373,7 +1705,10 @@
          */
 
         history.pushState(
-            { page: pageName },
+            {
+                page:
+                    pageName
+            },
             "",
             `#${pageName}`
         );
@@ -384,9 +1719,14 @@
          */
 
         if (
-            typeof initializePage === "function"
+            typeof initializePage ===
+            "function"
         ) {
-            initializePage(pageName);
+
+            initializePage(
+                pageName
+            );
+
         }
 
     }
@@ -399,27 +1739,36 @@
      */
 
     document
-        .querySelectorAll(".nav-item")
-        .forEach(item => {
+        .querySelectorAll(
+            ".nav-item"
+        )
+        .forEach(
+            item => {
 
-            item.addEventListener(
-                "click",
-                () => {
+                item.addEventListener(
+                    "click",
+                    () => {
 
-                    const page =
-                        item.dataset.page;
+                        const page =
+                            item.dataset.page;
 
-                    if (
-                        page &&
-                        pages[page]
-                    ) {
-                        navigate(page);
+
+                        if (
+                            page &&
+                            pages[page]
+                        ) {
+
+                            navigate(
+                                page
+                            );
+
+                        }
+
                     }
+                );
 
-                }
-            );
-
-        });
+            }
+        );
 
 
     /*
@@ -430,12 +1779,17 @@
 
     const initialPage =
         window.location.hash
-            .replace("#", "")
-            || "dashboard";
+            .replace(
+                "#",
+                ""
+            )
+        || "dashboard";
 
 
     navigate(
-        pages[initialPage]
+        pages[
+            initialPage
+        ]
             ? initialPage
             : "dashboard"
     );
@@ -453,11 +1807,17 @@
 
             const page =
                 window.location.hash
-                    .replace("#", "")
-                    || "dashboard";
+                    .replace(
+                        "#",
+                        ""
+                    )
+                || "dashboard";
+
 
             navigate(
-                pages[page]
+                pages[
+                    page
+                ]
                     ? page
                     : "dashboard"
             );

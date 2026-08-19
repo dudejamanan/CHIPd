@@ -32,7 +32,7 @@ function renderDesign() {
 - wrap around at 15`;
 
 
-    return `
+    const designMarkup = `
 
         <div class="design-page">
 
@@ -225,6 +225,57 @@ function renderDesign() {
                 </div>
 
 
+                <!-- CHIP ARCHITECTURE VISUALIZER -->
+
+                <div class="workspace-panel chip-architecture-panel">
+
+                    <div class="workspace-panel-header">
+
+                        <div>
+
+                            <span class="panel-kicker">
+                                03
+                            </span>
+
+                            <h2>
+                                Chip Architecture
+                            </h2>
+
+                        </div>
+
+                        <span class="panel-label">
+                            RTL SCHEMATIC
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="chip-design-visualizer"
+                        class="chip-design-visualizer"
+                    >
+
+                        <div class="code-placeholder">
+
+                            <div class="code-placeholder-icon">
+                                ◇
+                            </div>
+
+                            <strong>
+                                Architecture preview
+                            </strong>
+
+                            <span>
+                                Visual hardware architecture will appear here
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
                 <!-- AI COPILOT -->
 
                 <div class="workspace-panel copilot-panel">
@@ -386,16 +437,65 @@ function renderDesign() {
                     class="timeline"
                     id="design-timeline"
                 >
-
                     ${renderDesignTimeline()}
-
                 </div>
 
             </section>
 
+
         </div>
 
     `;
+
+
+    /*
+     * ----------------------------------------------------------
+     * MOUNT DESIGN PAGE
+     * ----------------------------------------------------------
+     */
+
+    if (
+        typeof window !== "undefined" &&
+        typeof window.renderChipDesign === "function"
+    ) {
+
+        /*
+         * The page HTML must be mounted before the visualizer
+         * can find #chip-design-visualizer.
+         *
+         * The existing application calls renderDesign() and
+         * mounts its returned HTML externally, so we defer the
+         * first visualizer render until the browser has painted
+         * the new DOM.
+         */
+
+        requestAnimationFrame(() => {
+
+            const specificationElement =
+                document.getElementById(
+                    "specification"
+                );
+
+
+            window.renderChipDesign(
+
+                specificationElement
+                    ? specificationElement.value
+                    : specification,
+
+                "",
+
+                null
+
+            );
+
+        });
+
+    }
+
+
+    return designMarkup;
+
 }
 
 
@@ -470,13 +570,16 @@ function renderDesignTimeline(
 
                     </div>
 
+
                     ${
                         index <
                         steps.length - 1
                             ? `
+
                                 <div
                                     class="timeline-line"
                                 ></div>
+
                             `
                             : ""
                     }
@@ -567,11 +670,15 @@ async function generateAndVerify() {
     ) {
 
         setVerificationMessage(
+
             "Open a backend-backed project before generating RTL.",
+
             "fail"
+
         );
 
         return;
+
     }
 
 
@@ -584,15 +691,20 @@ async function generateAndVerify() {
     if (!specification) {
 
         setVerificationMessage(
+
             "Enter a hardware specification first.",
+
             "fail"
+
         );
 
         return;
+
     }
 
 
     setLoadingState(true);
+
 
     resetVerificationUI();
 
@@ -747,6 +859,36 @@ async function generateAndVerify() {
 
 
         /*
+         * Render the actual generated RTL architecture.
+         *
+         * code-viewer.js exposes:
+         *
+         * window.renderChipDesign(
+         *     specification,
+         *     rtlSource,
+         *     moduleName
+         * )
+         */
+
+        if (
+            typeof window !== "undefined" &&
+            typeof window.renderChipDesign === "function"
+        ) {
+
+            window.renderChipDesign(
+
+                specification,
+
+                rtlSource,
+
+                rtlResult.module_name
+
+            );
+
+        }
+
+
+        /*
          * 3. Generate testbench
          */
 
@@ -880,6 +1022,7 @@ async function generateAndVerify() {
 
                 });
 
+
             } catch (error) {
 
                 renderAnalysisError(
@@ -911,6 +1054,7 @@ async function generateAndVerify() {
                 });
 
             }
+
 
         } else {
 
@@ -951,6 +1095,7 @@ async function generateAndVerify() {
         setStatusText(
             "FAILED"
         );
+
 
     } finally {
 
@@ -1070,9 +1215,11 @@ function renderVerificationResult(
 
 
     setStatusText(
+
         failed
             ? "FAILED"
             : "PASSED"
+
     );
 
 
@@ -1098,11 +1245,14 @@ function renderVerificationResult(
     if (testCount) {
 
         testCount.textContent =
+
             total !== null
+
                 ? `${
                     passedCount ??
                     "?"
                 }/${total}`
+
                 : "—";
 
     }
@@ -1117,8 +1267,11 @@ function renderVerificationResult(
     if (durationElement) {
 
         durationElement.textContent =
+
             duration !== null
+
                 ? `${duration} ms`
+
                 : "—";
 
     }
@@ -1150,11 +1303,13 @@ function renderAnalysis(
     const confidence =
         analysis &&
         analysis.confidence !== undefined
+
             ? Math.round(
                 Number(
                     analysis.confidence
                 ) * 100
             )
+
             : null;
 
 
@@ -1200,12 +1355,16 @@ function renderAnalysis(
                         margin-bottom:10px;
                     "
                 >
+
                     <strong>
+
                         ${escapeHtml(
                             analysis?.root_cause ||
                             "Verification failure detected"
                         )}
+
                     </strong>
+
                 </p>
 
 
@@ -1214,10 +1373,12 @@ function renderAnalysis(
                         margin-bottom:14px;
                     "
                 >
+
                     ${escapeHtml(
                         analysis?.explanation ||
                         "No explanation returned."
                     )}
+
                 </p>
 
 
@@ -1226,9 +1387,11 @@ function renderAnalysis(
                         margin-bottom:6px;
                     "
                 >
+
                     <strong>
                         Suggested fix
                     </strong>
+
                 </p>
 
 
@@ -1237,16 +1400,19 @@ function renderAnalysis(
                         margin-bottom:14px;
                     "
                 >
+
                     ${escapeHtml(
                         analysis?.suggested_fix ||
                         "No suggested fix returned."
                     )}
+
                 </p>
 
 
                 ${
                     confidence !== null
                         ? `
+
                             <span
                                 class="ai-indicator"
                                 style="
@@ -1256,6 +1422,7 @@ function renderAnalysis(
                             >
                                 Confidence ${confidence}%
                             </span>
+
                         `
                         : ""
                 }
@@ -1279,6 +1446,7 @@ function renderAnalysis(
         </div>
 
     `;
+
 }
 
 
@@ -1432,16 +1600,6 @@ async function applyAIFix() {
 
         /*
          * Run the complete pipeline again.
-         *
-         * This calls:
-         *
-         * createDesign
-         *      ↓
-         * generateRTL
-         *      ↓
-         * generateTestbench
-         *      ↓
-         * verifyDesign
          */
 
         await generateAndVerify();
@@ -1466,12 +1624,6 @@ async function applyAIFix() {
 
 
     } finally {
-
-        /*
-         * generateAndVerify() controls the main
-         * loading state, so only restore this button
-         * if it still exists.
-         */
 
         const currentButton =
             document.getElementById(
@@ -1700,8 +1852,11 @@ function setLoadingState(
     if (loading) {
 
         setVerificationMessage(
+
             "Running RTL generation and verification…",
+
             "running"
+
         );
 
     }
@@ -1757,8 +1912,10 @@ function setStatusText(
 
 
     if (element) {
+
         element.textContent =
             status;
+
     }
 
 }
