@@ -1,0 +1,16 @@
+.env
+silica.db
+backend/workspace/*
+!backend/workspace/.gitkeep
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+silica.db
+workspace/
