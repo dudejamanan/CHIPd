@@ -1,80 +1,34 @@
-"""
-Silica EDA Platform
-===================
-
-Application service for hardware design workflows.
-
-This layer sits between FastAPI routes and the lower-level services.
-
-Responsibilities
-----------------
-- Validate design requests
-- Run the verification pipeline
-- Expose a clean application-level API
-- Keep FastAPI routes thin
-- Prepare data for persistence/API responses
-
-This service deliberately does not contain HTTP-specific logic.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
 from backend.services.verification_pipeline import (
-    PipelineStatus,
     VerificationPipelineError,
     VerificationPipelineResult,
     verification_pipeline,
 )
 
 
-# ============================================================================
-# Exceptions
-# ============================================================================
-
-
 class DesignServiceError(Exception):
     """Base exception for design-service failures."""
 
 
-# ============================================================================
-# Design generation result
-# ============================================================================
-
-
 @dataclass(slots=True)
 class DesignWorkflowResult:
-    """
-    Clean application-level result returned to the API layer.
-    """
-
     verified: bool
-
     status: str
-
     specification: str
-
     rtl_source: str
-
     testbench_source: str
-
     attempts: int
-
     duration_ms: int
-
     message: str
-
     diagnostics: dict[str, Any] | None
-
     analysis: dict[str, Any] | None
-
     verification_history: list[dict[str, Any]]
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert result into JSON-compatible data."""
-
         return {
             "verified": self.verified,
             "status": self.status,
@@ -90,153 +44,49 @@ class DesignWorkflowResult:
         }
 
 
-# ============================================================================
-# Design Service
-# ============================================================================
-
-
 class DesignService:
-    """
-    High-level service for AI-assisted chip design workflows.
-    """
-
-    # ------------------------------------------------------------------------
-    # Generate + verify
-    # ------------------------------------------------------------------------
-
-    async def generate_and_verify(
-        self,
-        specification: str,
-    ) -> DesignWorkflowResult:
-        """
-        Generate RTL from a hardware specification and verify it.
-
-        The workflow may automatically repair failed RTL within the
-        configured repair budget.
-        """
-
-        specification = self._normalize_specification(
-            specification
-        )
-
+    async def generate_and_verify(self, specification: str) -> DesignWorkflowResult:
+        specification = self._normalize_specification(specification)
         try:
-
-            pipeline_result = (
-                await verification_pipeline.run(
-                    specification
-                )
-            )
-
+            result = await verification_pipeline.run(specification)
         except VerificationPipelineError as exc:
-
-            raise DesignServiceError(
-                str(exc)
-            ) from exc
-
-        return self._convert_pipeline_result(
-            pipeline_result
-        )
-
-    # ------------------------------------------------------------------------
-    # Pipeline → application result
-    # ------------------------------------------------------------------------
+            raise DesignServiceError(str(exc)) from exc
+        return self._convert_pipeline_result(result)
 
     def _convert_pipeline_result(
         self,
         result: VerificationPipelineResult,
     ) -> DesignWorkflowResult:
-        """
-        Convert internal pipeline result into a stable API-facing result.
-        """
+        diagnostics = result.final_diagnostics.to_dict() if result.final_diagnostics else None
+        analysis = result.final_analysis.to_dict() if result.final_analysis else None
 
-        diagnostics = None
-
-        if result.final_diagnostics is not None:
-
-            diagnostics = (
-                result.final_diagnostics.to_dict()
-            )
-
-        analysis = None
-
-        if result.final_analysis is not None:
-
-            analysis = (
-                result.final_analysis.to_dict()
-            )
-
-        history: list[
-            dict[str, Any]
-        ] = []
-
+        history: list[dict[str, Any]] = []
         for attempt in result.attempts:
+            data = attempt.to_dict()
+            history.append({
+                "attempt_number": data.get("attempt_number"),
+                "status": data.get("status"),
+                "passed": data.get("passed", False),
+                "compile_success": data.get("compile_success", False),
+                "simulation_success": data.get("simulation_success", False),
+                "duration_ms": data.get("duration_ms", 0),
+                "stdout": data.get("stdout", ""),
+                "stderr": data.get("stderr", ""),
+                "diagnostics": data.get("diagnostics"),
+                "failure_analysis": data.get("failure_analysis"),
+                "repair": data.get("repair"),
+            })
 
-            attempt_data = (
-                attempt.to_dict()
-            )
-
-            # ---------------------------------------------------------------
-            # The frontend needs the metadata and diagnostics for each
-            # attempt, but does not need duplicated complete source code
-            # everywhere in the history.
-            # ---------------------------------------------------------------
-
-            history.append(
-                {
-                    "attempt_number": (
-                        attempt_data[
-                            "attempt_number"
-                        ]
-                    ),
-                    "status": (
-                        attempt_data[
-                            "status"
-                        ]
-                    ),
-                    "passed": (
-                        attempt_data[
-                            "passed"
-                        ]
-                    ),
-                    "compile_success": (
-                        attempt_data[
-                            "compile_success"
-                        ]
-                    ),
-                    "simulation_success": (
-                        attempt_data[
-                            "simulation_success"
-                        ]
-                    ),
-                    "duration_ms": (
-                        attempt_data[
-                            "duration_ms"
-                        ]
-                    ),
-                    "diagnostics": (
-                        attempt_data[
-                            "diagnostics"
-                        ]
-                    ),
-                    "failure_analysis": (
-                        attempt_data[
-                            "failure_analysis"
-                        ]
-                    ),
-                    "repair": (
-                        attempt_data[
-                            "repair"
-                        ]
-                    ),
-                }
-            )
+        testbench_source = result.testbench_source
+        if hasattr(testbench_source, "testbench_source"):
+            testbench_source = testbench_source.testbench_source
 
         return DesignWorkflowResult(
             verified=result.verified,
             status=result.status.value,
             specification=result.specification,
             rtl_source=result.rtl_source,
-            testbench_source=result.testbench_source,
+            testbench_source=str(testbench_source or ""),
             attempts=result.total_attempts,
             duration_ms=result.total_duration_ms,
             message=result.final_message,
@@ -245,46 +95,15 @@ class DesignService:
             verification_history=history,
         )
 
-    # ------------------------------------------------------------------------
-    # Validation
-    # ------------------------------------------------------------------------
-
-    def _normalize_specification(
-        self,
-        specification: str,
-    ) -> str:
-        """
-        Normalize and validate the hardware specification.
-        """
-
+    def _normalize_specification(self, specification: str) -> str:
         if specification is None:
-
-            raise DesignServiceError(
-                "Hardware specification is required."
-            )
-
+            raise DesignServiceError("Hardware specification is required.")
         specification = specification.strip()
-
         if not specification:
-
-            raise DesignServiceError(
-                "Hardware specification cannot be empty."
-            )
-
-        # Keep this limit intentionally generous for the MVP while
-        # protecting the Gemini API from accidental enormous payloads.
+            raise DesignServiceError("Hardware specification cannot be empty.")
         if len(specification) > 20_000:
-
-            raise DesignServiceError(
-                "Hardware specification is too long. "
-                "Please keep it below 20,000 characters."
-            )
-
+            raise DesignServiceError("Hardware specification is too long. Please keep it below 20,000 characters.")
         return specification
 
-
-# ============================================================================
-# Shared service instance
-# ============================================================================
 
 design_service = DesignService()

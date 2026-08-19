@@ -802,15 +802,12 @@ class VerificationPipeline:
 
 
 
-        return await testbench_generator.generate(
-
+        result = await testbench_generator.generate(
             specification=specification,
-
             rtl_source=rtl_source,
-
             module_name=module_name,
-
         )
+        return result.testbench_source if hasattr(result, "testbench_source") else result
 
     # ------------------------------------------------------------------------
 
@@ -924,24 +921,21 @@ class VerificationPipeline:
 
 
 
+            compile_ok = simulation.status != "compile_error"
+            simulation_ok = compile_ok and simulation.status not in {"timeout", "simulation_error"}
+            combined_stdout = "\n".join(x for x in (simulation.compile_stdout, simulation.simulation_stdout) if x)
+            combined_stderr = "\n".join(x for x in (simulation.compile_stderr, simulation.simulation_stderr) if x)
             attempt = VerificationAttempt(
-
                 attempt_number=attempt_number,
-
                 rtl_source=current_rtl,
-
                 status=simulation.status,
-
                 passed=simulation.success,
-                compile_success=simulation.success,
-                simulation_success=simulation.success,
-                stdout=simulation.simulation_stdout,
-                stderr=simulation.simulation_stderr,
-
+                compile_success=compile_ok,
+                simulation_success=simulation_ok and simulation.success,
+                stdout=combined_stdout,
+                stderr=combined_stderr,
                 diagnostics=diagnostics,
-
-                duration_ms=0.0,
-
+                duration_ms=int(simulation.duration_seconds * 1000),
             )
 
 
@@ -1333,57 +1327,14 @@ class VerificationPipeline:
 
 
     def _run_simulation(
-
         self,
-
         *,
-
         rtl_source: str,
-
         testbench_source: str,
-
     ) -> SimulationResult:
-
-        """
-
-        Run RTL + testbench through Icarus.
-
-        """
-
-
-
-        match = re.search(
-            r"\bmodule\s+([A-Za-z_][A-Za-z0-9_]*)",
-            rtl_source,
-        )
-
-        if not match:
-            raise RuntimeError(
-                "Could not determine DUT module name from generated RTL."
-            )
-
-        module_name = match.group(1)
-
-        logger.info(
-            "Running Icarus simulation for DUT module: %s",
-            module_name,
-        )
-
-        return simulator.run(
-            rtl_source=rtl_source,
-            testbench_source=testbench_source.testbench_source,
-            module_name=module_name,
-        )
-
-
-
-    # ------------------------------------------------------------------------
-
-    # Log parsing
-
-    # ------------------------------------------------------------------------
-
-
+        module_name = self._extract_module_name(rtl_source)
+        logger.info("Running Icarus simulation for DUT module: %s", module_name)
+        return simulator.run(rtl_source=rtl_source, testbench_source=testbench_source, module_name=module_name)
 
     def _parse_diagnostics(
 
@@ -1423,34 +1374,9 @@ class VerificationPipeline:
 
     # ------------------------------------------------------------------------
 
-    def _combined_output(self, simulation) -> str:
-        """
-        Combine all available simulator output for diagnostics.
-        """
-
-        parts = []
-
-        if simulation.compile_stdout:
-            parts.append(simulation.compile_stdout)
-
-        if simulation.compile_stderr:
-            parts.append(simulation.compile_stderr)
-
-        if simulation.simulation_stdout:
-            parts.append(simulation.simulation_stdout)
-
-        if simulation.simulation_stderr:
-            parts.append(simulation.simulation_stderr)
-
-        return "\n".join(parts)
-
-    # ------------------------------------------------------------------------
-
-    # Failed result
-
-    # ------------------------------------------------------------------------
-
-
+    def _combined_output(self, simulation: SimulationResult) -> str:
+        parts = [simulation.compile_stdout, simulation.compile_stderr, simulation.simulation_stdout, simulation.simulation_stderr]
+        return "\n".join(part for part in parts if part)
 
     def _failed_result(
 
